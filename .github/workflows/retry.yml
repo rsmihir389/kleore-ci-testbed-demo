@@ -13,13 +13,23 @@ jobs:
     if: github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     steps:
-      - name: Re-run failed jobs
+      - name: Re-run failed jobs (once only)
         uses: actions/github-script@v7
         with:
           script: |
+            // Check if this run is already a retry (attempt > 1) — if so, don't retry again
+            const run = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            if (run.data.run_attempt > 1) {
+              console.log(`Run ${run.data.id} is already attempt #${run.data.run_attempt}, skipping retry.`);
+              return;
+            }
             await github.rest.actions.reRunWorkflowFailedJobs({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.payload.workflow_run.id,
             });
-            console.log(`Re-running failed jobs for run ${context.payload.workflow_run.id}`);
+            console.log(`Re-running failed jobs for run ${context.payload.workflow_run.id} (attempt #1 → #2)`);
