@@ -42,7 +42,7 @@ describe("Array operations", () => {
 describe("External service integration", () => {
   it("connects to payment gateway", () => {
     // Simulates intermittent network timeout
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.9) {
       throw new Error("Connection timeout: payment gateway did not respond within 5000ms");
     }
     assert.ok(true);
@@ -50,7 +50,7 @@ describe("External service integration", () => {
 
   it("syncs user profile from auth service", () => {
     // Simulates occasional auth token expiry race condition
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.9) {
       throw new Error("TokenExpiredError: auth token expired during sync");
     }
     assert.ok(true);
@@ -58,7 +58,7 @@ describe("External service integration", () => {
 
   it("writes analytics event to queue", () => {
     // Simulates intermittent queue backpressure
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.9) {
       throw new Error("QueueFullError: analytics queue at capacity, event dropped");
     }
     assert.ok(true);
