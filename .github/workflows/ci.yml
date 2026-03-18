@@ -17,4 +17,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm test
+      - name: Run tests with JUnit output
+        run: |
+          mkdir -p test-results
+          node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results/junit.xml tests/suite.test.mjs || true
+      - name: Upload test results to Kleore
+        if: always()
+        run: |
+          if [ -f test-results/junit.xml ]; then
+            WORKFLOW_RUN_ID="${{ github.run_id }}"
+            curl -s -X POST "https://www.kleore.com/api/repos/cmmpmdni10003ji286ebxycap/upload" \
+              -H "X-Upload-Token: ${{ secrets.KLEORE_UPLOAD_TOKEN }}" \
+              -H "X-Workflow-Run-Id: ${WORKFLOW_RUN_ID}" \
+              -H "Content-Type: application/xml" \
+              --data-binary @test-results/junit.xml
+          fi
