@@ -37,15 +37,18 @@ describe("Array operations", () => {
   });
 });
 
+// ─── Mock payment gateway service ────────────────────────────
+
+const mockPaymentGateway = {
+  connect: () => Promise.resolve({ status: "connected" }),
+};
+
 // ─── Flaky tests (~30% failure rate) ──────────────────────────
 
 describe("External service integration", () => {
-  it("connects to payment gateway", () => {
-    // Simulates intermittent network timeout
-    if (Math.random() < 0.3) {
-      throw new Error("Connection timeout: payment gateway did not respond within 5000ms");
-    }
-    assert.ok(true);
+  it("connects to payment gateway", async () => {
+    const result = await mockPaymentGateway.connect();
+    assert.equal(result.status, "connected");
   });
 
   it("syncs user profile from auth service", () => {
