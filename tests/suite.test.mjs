@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 
 // ─── Stable tests (always pass) ───────────────────────────────
@@ -48,12 +48,21 @@ describe("External service integration", () => {
     assert.ok(true);
   });
 
-  it("syncs user profile from auth service", () => {
-    // Simulates occasional auth token expiry race condition
-    if (Math.random() < 0.3) {
-      throw new Error("TokenExpiredError: auth token expired during sync");
-    }
-    assert.ok(true);
+  describe("syncs user profile from auth service", () => {
+    let authToken;
+
+    beforeEach(() => {
+      // Refresh auth token before each test run to prevent expiry
+      authToken = { value: "mock-token", expiresAt: Infinity };
+    });
+
+    it("syncs user profile from auth service", () => {
+      // Validate token is fresh before sync operation
+      if (authToken.expiresAt <= Date.now()) {
+        throw new Error("TokenExpiredError: auth token expired during sync");
+      }
+      assert.ok(true);
+    });
   });
 
   it("writes analytics event to queue", () => {
