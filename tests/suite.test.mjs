@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 
 // ─── Stable tests (always pass) ───────────────────────────────
@@ -40,6 +40,16 @@ describe("Array operations", () => {
 // ─── Flaky tests (~30% failure rate) ──────────────────────────
 
 describe("External service integration", () => {
+  beforeEach(() => {
+    // Clear analytics queue before each test
+    global.analyticsQueue = [];
+  });
+
+  afterEach(() => {
+    // Clean up analytics queue after each test
+    global.analyticsQueue = [];
+  });
+
   it("connects to payment gateway", () => {
     // Simulates intermittent network timeout
     if (Math.random() < 0.3) {
